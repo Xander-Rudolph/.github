@@ -1,0 +1,89 @@
+# https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
+name: Create and publish a Docker image
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        required: true
+        description: "Name of docker image"
+        type: string
+      working_dir:
+        required: false
+        description: "Operating path for path dependent steps"
+        type: string
+        default: .
+      version_prefix:
+        required: false
+        description: "prefix for semantic version"
+        type: string
+        default: ""
+      publish:
+        required: false
+        description: "toggle push action"
+        type: bool
+        default: true
+    secrets:
+      GH_READPAT:
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ inputs.image }}
+  # IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # reference https://github.com/PaulHatch/semantic-version
+      - name: Docker Image Version
+        id: version
+        uses: paulhatch/semantic-version@v4.0.2
+        with:
+          tag_prefix: ${{ inputs.version_prefix }}
+          change_path: ${{ inputs.working_dir }}
+          search_commit_body: true
+          # bump_each_commit: false
+          # major_pattern: "(MAJOR)"
+          # major_regexp_flags: ""
+          # minor_pattern: "(MINOR)"
+          # minor_regexp_flags: ""
+          # format: "${major}.${minor}.${patch}-prerelease${increment}"
+          # namespace: my-service
+          # user_format_type: "csv"
+
+      - name: Log in to the Container registry
+        uses: docker/login-action
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # tags: |
+          #   type=ref,event=branch
+          #   type=ref,event=pr
+          #   type=semver,pattern={{version}}
+          #   type=semver,pattern={{major}}.{{minor}}
+          #   type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action
+        with:
+          context: ${{ inputs.working_dir }}
+          push: ${{ inputs.publish }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
