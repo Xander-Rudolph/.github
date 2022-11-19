@@ -1,5 +1,0 @@
-- [ ] Bug
-- [ ] Feature
-- [ ] Enhancement
-- [ ] Test
-- [ ] Debug
