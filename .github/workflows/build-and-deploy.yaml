@@ -1,0 +1,87 @@
+name: Run Ghost, generate static content, and publish to github pages
+
+on:
+  workflow_call:
+    inputs:
+      github-user:
+        description: "github user name"
+        required: true # once I nail down repo create this can use the actor and be set to false
+        type: string
+      overrideURL:
+        description: "URL override for github page"
+        default: ''
+        required: false
+        type: string
+    secrets:
+      OVERRIDE_TOKEN:
+        required: false
+
+env:
+  github-user: ${{ inputs.github-user }}
+  github-repo: ${{ inputs.github-user }}.github.io
+  GITHUB_OVERRIDE_TOKEN: ${{ secrets.OVERRIDE_TOKEN }}
+  #TODO: ChatGPT says you can do this... I think it lies
+  # github-user: ${{ inputs.github-user != '' ? inputs.github-user : github.actor }}
+  # github-repo: ${{ inputs.github-user != '' ? inputs.github-user : github.actor }}
+  # GITHUB_OVERRIDE_TOKEN: ${{ secrets.OVERRIDE_TOKEN != '' ? secrets.OVERRIDE_TOKEN : secrets.GH_TOKEN }}
+
+jobs:
+  repo:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      #TODO: check to see if it exists first
+      # - name: Check For Repo
+      #   uses: actions/checkout@v3
+      #   with:
+      #     repository: ${{ env.github-repo }}
+
+      - name: Create Repo 🔨
+        uses: octobay/create-repository-action@v1
+        with:
+          name: ${{ env.github-repo }}
+          org: ${{ env.github-user }}
+          access-token: ${{ env.GITHUB_OVERRIDE_TOKEN }}
+          private-repo: false
+          initalize-repo: true
+
+      #TODO: Set Repo permissions
+      # - name: Set Repo Permissions
+      #   uses: 
+      #   with:
+
+  ghost:
+    concurrency: ci-${{ github.ref }}
+    needs: repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      
+      - name: Run Ghost 👻
+        run: docker run -d -p 2368:2368 -v ${{ github.workspace }}/content:/var/lib/ghost/content ghost:4.47.4-alpine
+      
+      - name: Sleep for 10 seconds 💤
+        uses: jakejarvis/wait-action@master
+        with:
+          time: "10s"
+          
+      - name: Install ghost-static-site-generator ✨
+        run: npm install -g ghost-static-site-generator
+
+      - name: Generate Static Site 🛠️
+        if: ${{ inputs.overrideURL == '' }}
+        run: gssg --url https://${{ env.github-repo }}
+
+      - name: Generate Static Site - Using custom domain 🛠️
+        if: ${{ inputs.overrideURL != '' }}
+        run: gssg --url https://${{ inputs.overrideURL }}
+
+      - name: Deploy to Github Pages 🚀
+        if: ${{ env.GITHUB_OVERRIDE_TOKEN != '' }}
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          branch: main #gh-pages
+          folder: static
+          token: ${{ env.GITHUB_OVERRIDE_TOKEN }}
+          repository-name: ${{ env.github-user }}/${{ env.github-repo }}
