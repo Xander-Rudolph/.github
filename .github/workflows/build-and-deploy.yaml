@@ -43,7 +43,7 @@ jobs:
           org: ${{ env.github-user }}
           access-token: ${{ env.GITHUB_OVERRIDE_TOKEN }}
           private-repo: false
-          initalize-repo: true
+          initialize-repo: true
 
       #TODO: Set Repo permissions
       # - name: Set Repo Permissions
