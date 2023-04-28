@@ -95,15 +95,15 @@ jobs:
           token: ${{ env.GITHUB_OVERRIDE_TOKEN }}
           repository-name: ${{ env.github-user }}/${{ env.github-repo }}
           
-  theme:
-    runs-on: ubuntu-22.04
-    if: ${{ secrets.GHOST_ADMIN_API_KEY != '' }}
-    needs: ghost
-    steps:
-      - uses: actions/checkout@v3
+#   theme:
+#     runs-on: ubuntu-22.04
+#     if: ${{ secrets.GHOST_ADMIN_API_KEY != '' }}
+#     needs: ghost
+#     steps:
+#       - uses: actions/checkout@v3
       
-      - name: Deploy Ghost Theme
-        uses: TryGhost/action-deploy-theme@v1
-        with:
-          api-url: ${{ secrets.GHOST_ADMIN_API_URL }}
-          api-key: ${{ secrets.GHOST_ADMIN_API_KEY }}
+#       - name: Deploy Ghost Theme
+#         uses: TryGhost/action-deploy-theme@v1
+#         with:
+#           api-url: ${{ secrets.GHOST_ADMIN_API_URL }}
+#           api-key: ${{ secrets.GHOST_ADMIN_API_KEY }}
