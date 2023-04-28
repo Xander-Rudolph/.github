@@ -12,6 +12,11 @@ on:
         default: ''
         required: false
         type: string
+      dockerimage:
+        description: "ghost docker image used to generate content"
+        default: 'ghost:alpine'
+        required: false
+        type: string        
     secrets:
       OVERRIDE_TOKEN:
         required: false
@@ -63,7 +68,7 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Run Ghost 👻
-        run: docker run -d -p 2368:2368 -v ${{ github.workspace }}/content:/var/lib/ghost/content ghost:4.47.4-alpine
+        run: docker run -d -p 2368:2368 -e NODE_ENV=development -e database__connection__filename='/var/lib/ghost/content/data/ghost.db' -v ${{ github.workspace }}/content:/var/lib/ghost/content ${{ inputs.dockerimage }}
       
       - name: Sleep for 10 seconds 💤
         uses: jakejarvis/wait-action@master
