@@ -15,6 +15,10 @@ on:
     secrets:
       OVERRIDE_TOKEN:
         required: false
+      GHOST_ADMIN_API_URL:
+        required: false
+      GHOST_ADMIN_API_KEY:
+        required: false
 
 env:
   github-user: ${{ inputs.github-user }}
@@ -85,3 +89,15 @@ jobs:
           folder: static
           token: ${{ env.GITHUB_OVERRIDE_TOKEN }}
           repository-name: ${{ env.github-user }}/${{ env.github-repo }}
+          
+  theme:
+    runs-on: ubuntu-22.04
+    needs: ghost
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy Ghost Theme
+        uses: TryGhost/action-deploy-theme@v1
+        with:
+          api-url: ${{ secrets.GHOST_ADMIN_API_URL }}
+          api-key: ${{ secrets.GHOST_ADMIN_API_KEY }}
