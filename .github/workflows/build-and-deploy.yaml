@@ -92,6 +92,7 @@ jobs:
           
   theme:
     runs-on: ubuntu-22.04
+    if: ${{ secrets.GHOST_ADMIN_API_KEY != '' }}
     needs: ghost
     steps:
       - uses: actions/checkout@v3
