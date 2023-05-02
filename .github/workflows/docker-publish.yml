@@ -82,5 +82,5 @@ jobs:
         with:
           tags: ${{ steps.meta.outputs.tags }}
           context:  ${{ inputs.working_dir }}
-          push: ${{ inputs.trigger_release && env.CODEFREEZE == 'false' }}
+          push: ${{ inputs.trigger_release }}
           labels: ${{ steps.meta.outputs.labels }}
