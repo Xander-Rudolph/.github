@@ -13,7 +13,7 @@ on:
     inputs:
       image_name:
         required: true
-        description: "Name of docker registry to publish. Does not need ghcr.io/htaic/ in front."
+        description: "Name of docker registry to publish. Does not need ghcr.io/[orgname]/ in front."
         type: string
       
       working_dir:
@@ -27,13 +27,17 @@ on:
         description: "Toggle to true for docker push all tags"
         type: boolean
         default: false
-     
+        
+      org:
+        required: false
+        description: "name of your org"
+        type: string
+        default: ""
+
     secrets:
       GH_READPAT:
         required: true
       GH_USERNAME:
-        required: true
-      CODEFREEZE:
         required: true
       GH_MANAGEPACKAGETOKEN:
         required: false
@@ -87,7 +91,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ghcr.io/htaic/${{ inputs.image_name }}
+          images: ghcr.io/${{ inputs.org }}/${{ inputs.image_name }}
           tags: |
             type=sha
             type=raw,latest
