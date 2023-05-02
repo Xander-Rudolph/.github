@@ -30,9 +30,9 @@ on:
         
       org:
         required: false
-        description: "name of your org"
+        description: "Name of your org"
         type: string
-        default: ""
+        default: "xander-rudolph"
 
     secrets:
       GH_READPAT:
