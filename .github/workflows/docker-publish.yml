@@ -28,15 +28,6 @@ on:
         type: boolean
         default: false
 
-    secrets:
-      GH_READPAT:
-        required: true
-      GH_USERNAME:
-        required: true
-
-env:
-  CODEFREEZE: ${{ secrets.CODEFREEZE }}
-
 jobs:
   build:
     outputs:
