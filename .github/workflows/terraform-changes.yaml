@@ -22,12 +22,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }} #TODO: Add toggle for override token
-          # sparse-checkout: .github
+          sparse-checkout: .github
 
       - name: Find changes in branch
         id: find_changes
         run: |
-          changes=$(git diff --name-only HEAD~ HEAD ${{ inputs.working_dir }})
+          changes=$(git diff --name-only HEAD^ HEAD ${{ inputs.working_dir }})
           json="{\"changes\":[$(echo $changes | sed -e 's/ /","/g')]}"
           echo "changes=$json" >> $GITHUB_OUTPUT
 
