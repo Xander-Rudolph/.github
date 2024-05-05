@@ -26,8 +26,8 @@ on:
         required: false
 
 env:
-  github-user: ${{ inputs.github-user }}
-  github-repo: ${{ inputs.github-user }}.github.io
+  github-user: ${{ github.actor }}
+  github-repo: ${{ github.repository_owner }}.github.io
   GITHUB_OVERRIDE_TOKEN: ${{ secrets.OVERRIDE_TOKEN }}
   #TODO: ChatGPT says you can do this... I think it lies
   # github-user: ${{ inputs.github-user != '' ? inputs.github-user : github.actor }}

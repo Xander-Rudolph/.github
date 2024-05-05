@@ -1,0 +1,35 @@
+name: Find changes
+
+on:
+  workflow_call:
+    inputs:
+      working_dir:
+        required: true
+        description: "Path of root to check for changes."
+        type: string
+        default: "modules/"
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+
+jobs:
+  create_repo:
+    runs-on: ubuntu-latest
+    outputs:
+      changes: ${{ steps.find_changes.outputs.changes }}
+    steps:
+      # This checkout is for credentials
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sparse-checkout: .github
+
+      - name: Find changes in branch
+        id: find_changes
+        run: |
+          changes=$(git diff --name-only HEAD^ HEAD ${{ inputs.working_dir }})
+          json="{\"changes\":[$(echo $changes | sed -e 's/ /","/g')]}"
+          echo "changes=$json" >> $GITHUB_OUTPUT
+
+      - name: Print JSON output
+        run: echo "${{ steps.find_changes.outputs.json }}"
