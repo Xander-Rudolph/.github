@@ -18,13 +18,12 @@ on:
         default: "--private"
         type: string
     secrets:
-      GITHUB_TOKEN:
-        required: true
+      OVERRIDE_TOKEN:
+        required: false
 
 env: 
   REPO_NAME: "terraform-${{ inputs.working_dir }}"
   REPO_OWNER: ${{ github.repository_owner }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   create_repo:
@@ -33,7 +32,7 @@ jobs:
       # This checkout is for credentials
       - uses: actions/checkout@v4
         with:
-          token: ${{ env.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }} #TODO: Add toggle for override token
           sparse-checkout: .github
 
       - name: Create Repo from Template
