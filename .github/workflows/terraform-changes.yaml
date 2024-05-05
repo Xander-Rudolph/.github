@@ -27,7 +27,7 @@ jobs:
       - name: Find changes in branch
         id: find_changes
         run: |
-          changes=$(git diff --name-only HEAD^ HEAD ${{ inputs.working_dir }})
+          changes=$(git diff --name-only ${{ github.ref }} HEAD^ ${{ inputs.working_dir }}) | awk -F'/' '{print $1}' | uniq)
           json="{\"changes\":[$(echo $changes | sed -e 's/ /","/g')]}"
           echo "changes=$json" >> $GITHUB_OUTPUT
 
