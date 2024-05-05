@@ -24,7 +24,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }} #TODO: Add toggle for override token
           sparse-checkout: .github
 
+      - name: Get default branch
+        run: |
+          echo "DEFAULT_BRANCH=$(git remote show origin | sed -n '/HEAD branch/s/.*: //p')" >> $GITHUB_ENV
+
       - name: Find changes in branch
+        if: ${{ github.ref_name == env.DEFAULT_BRANCH }}
         id: find_changes
         run: |
           changes=$(git diff --name-only HEAD^ HEAD ${{ inputs.working_dir }})
