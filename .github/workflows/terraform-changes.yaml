@@ -13,7 +13,7 @@ on:
         required: false
 
 jobs:
-  create_repo:
+  get_json:
     runs-on: ubuntu-latest
     outputs:
       changes: ${{ steps.find_changes.outputs.changes }}
@@ -27,7 +27,7 @@ jobs:
       - name: Find changes in branch
         id: find_changes
         run: |
-          changes=$(git diff --name-only HEAD^ HEAD ${{ inputs.working_dir }})
+          changes=$(git diff --name-only HEAD~ HEAD ${{ inputs.working_dir }})
           json="{\"changes\":[$(echo $changes | sed -e 's/ /","/g')]}"
           echo "changes=$json" >> $GITHUB_OUTPUT
 
