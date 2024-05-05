@@ -1,0 +1,103 @@
+name: Publish Branch
+
+on:
+  workflow_call:
+    inputs:
+      working_dir: 
+        description: "Path to submodule"
+        type: string
+    secrets:
+      OVERRIDE_TOKEN:
+        required: true
+      
+env:
+  COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+
+jobs:
+  push-version:
+    runs-on: ubuntu-latest
+    name: "Bump version with tags"
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Check out module folder
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.COMMIT_TOKEN }} # TODO: Add some override here for OVERRIDE_TOKEN
+          repository: "${{ github.repository_owner }}/terraform-${{ inputs.working_dir }}"
+          path: "./terraform-${{ inputs.working_dir }}"
+          fetch-depth: 0
+          
+      - name: Push to Remote
+        id: shouldVersion
+        run: |
+          cp -Rf ${{ inputs.working_dir }}/* ./terraform-${{ inputs.working_dir }}
+          cd ./terraform-${{ inputs.working_dir }}
+          git config --global init.defaultBranch main
+          git config user.name "${{ github.actor }}" && \
+          git config user.email "<>" && \
+          git add --all
+
+          if [[ $(git status -s) ]]; then
+            git diff-index --quiet HEAD || git commit -m "$COMMIT_MESSAGE" && \
+            git push
+            echo "shouldVersion=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes to push."
+            echo "shouldVersion=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push the version tag
+        if: ${{ steps.shouldVersion.outputs.shouldVersion == 'true' }}
+        run: |
+          cd ./terraform-${{ inputs.working_dir }}
+          get_next_version() {
+            local latest_tag=$(git describe --tags --abbrev=0 2>/dev/null)
+            local commit_type=$1
+
+            if [ -z "$latest_tag" ]; then
+              # If no tags exist, set VERSION to "v0.0.0"
+              echo "v0.0.0"
+            else
+              local current_version=$(echo "$latest_tag" | sed 's/v//')
+              local major=$(cut -d '.' -f1 <<<"$current_version")
+              local minor=$(cut -d '.' -f2 <<<"$current_version")
+              local patch=$(cut -d '.' -f3 <<<"$current_version")
+
+              case "$commit_type" in
+              "major")
+                echo "v$((major + 1)).0.0"
+                ;;
+              "minor")
+                echo "v$major.$((minor + 1)).0"
+                ;;
+              "patch")
+                echo "v$major.$minor.$((patch + 1))"
+                ;;
+              *)
+                echo "$latest_tag"
+                ;;
+              esac
+            fi
+          }
+
+          COMMIT_MESSAGE=$(git log -n 1 --pretty=format:"%s")
+
+          if [[ $COMMIT_MESSAGE == *"major:"* || $COMMIT_MESSAGE == *!:* ]]; then
+            COMMIT_TYPE="major"
+          elif [[ $COMMIT_MESSAGE == *"feat:"* || 
+                  $COMMIT_MESSAGE == *"feature:"* ]]; then
+            COMMIT_TYPE="minor"
+          else
+            COMMIT_TYPE="patch"  # Default to patch if no specific message is found
+          fi
+
+          # Get the next semantic version based on the commit type
+          VERSION=$(get_next_version "$COMMIT_TYPE")
+
+          # Create a new tag with the updated version
+          git tag -a "$VERSION" -m " $COMMIT_MESSAGE "
+
+          # Push the new tag to the remote repository
+          git push origin "$VERSION"

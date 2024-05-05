@@ -10,7 +10,7 @@ on:
 
 jobs:
   lint:
-    # linting on a PR generally causes issues because you aren't on a branch (different head refs)
+    # linting on a PR doesn't work (different head refs)
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -64,8 +64,7 @@ jobs:
         id: trivy
         uses: xander-rudolph/trivy-scan@main
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           working_dir: ${{ inputs.working_dir }}
           severity: HIGH,CRITICAL
           format: sarif
-          create_artifact: ${{ github.event_name != 'pull_request' }}
+          gh_pages_branch: gh_pages
