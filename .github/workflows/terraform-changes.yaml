@@ -9,8 +9,8 @@ on:
         type: string
         default: "modules/"
     secrets:
-      GITHUB_TOKEN:
-        required: true
+      OVERRIDE_TOKEN:
+        required: false
 
 jobs:
   create_repo:
@@ -21,7 +21,7 @@ jobs:
       # This checkout is for credentials
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }} #TODO: Add toggle for override token
           sparse-checkout: .github
 
       - name: Find changes in branch

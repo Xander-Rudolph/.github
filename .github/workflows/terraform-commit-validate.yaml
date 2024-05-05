@@ -1,0 +1,71 @@
+name: Code hygiene
+
+on:
+  workflow_call:
+    inputs:
+      working_dir:
+        required: true
+        description: "Path of module"
+        type: string
+
+jobs:
+  lint:
+    # linting on a PR generally causes issues because you aren't on a branch (different head refs)
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform fmt
+        working-directory: ${{ inputs.working_dir }}
+        id: fmt
+        run: terraform fmt
+
+      - name: Commit changes
+        working-directory: ${{ inputs.working_dir }}
+        id: commit
+        run: |
+          git config user.name "${{ github.actor }}" && \
+          git config user.email "<>" && \
+          git pull
+          git add --all
+          git diff-index --quiet HEAD || git commit -m "chore: Automatic Linting" && \
+          git push
+        continue-on-error: false
+        
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Render terraform docs and push changes back to PR
+        uses: terraform-docs/gh-actions@v1
+        with:
+          working-dir: ${{ inputs.working_dir }}
+          output-file: README.md
+          output-method: inject
+          git-push: "true"
+          
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Scan folder with Trivy
+        id: trivy
+        uses: xander-rudolph/trivy-scan@main
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          working_dir: ${{ inputs.working_dir }}
+          severity: HIGH,CRITICAL
+          format: sarif
+          create_artifact: ${{ github.event_name != 'pull_request' }}
