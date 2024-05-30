@@ -46,7 +46,7 @@ jobs:
       #     repository: ${{ env.github-repo }}
 
       - name: Create Repo 🔨
-        uses: moutansos/create-repository-action
+        uses: moutansos/create-repository-action@main
         with:
           name: ${{ env.github-repo }}
           org: ${{ env.github-user }}
