@@ -46,7 +46,7 @@ jobs:
       #     repository: ${{ env.github-repo }}
 
       - name: Create Repo 🔨
-        uses: octobay/create-repository-action@v1
+        uses: moutansos/create-repository-action
         with:
           name: ${{ env.github-repo }}
           org: ${{ env.github-user }}
