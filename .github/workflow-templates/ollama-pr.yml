@@ -1,0 +1,12 @@
+name: Example - Review a PR
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - '**' # using branches instead of all ignores tags https://stackoverflow.com/a/71879890
+
+jobs:
+  versioner:
+    uses: xander-rudolph/.github/.github/workflows/ollama-pr.yml@main
+    secrets: inherit
