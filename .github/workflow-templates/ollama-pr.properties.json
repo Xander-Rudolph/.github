@@ -1,0 +1,7 @@
+{
+    "name": "LLM PR Review",
+    "description": "Review a PR with ollama",
+    "iconName": "",
+    "categories": [""],
+    "filePatterns": []
+}
