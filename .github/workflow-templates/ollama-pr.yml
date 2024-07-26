@@ -6,6 +6,11 @@ on:
     branches:
       - '**' # using branches instead of all ignores tags https://stackoverflow.com/a/71879890
 
+
+permissions:
+  pull-requests: write
+  contents: read
+
 jobs:
   versioner:
     uses: xander-rudolph/.github/.github/workflows/ollama-pr.yml@main
