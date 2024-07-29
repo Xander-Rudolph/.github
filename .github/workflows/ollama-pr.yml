@@ -9,7 +9,8 @@ on:
         description: 'Override model name'
         required: false
         type: string
-        default: codellama
+        # default: llama3.1 # quick PR
+        default: codellama # download of this model takes a while
         
 jobs:
   review-pr:
