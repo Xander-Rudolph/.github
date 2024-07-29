@@ -4,14 +4,20 @@ on:
   pull_request:
       types: [opened, synchronize]
   workflow_call:
-
+    inputs:
+      model:
+        description: 'Override model name'
+        required: false
+        type: string
+        default: codellama
+        
 jobs:
   review-pr:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
     services:
-      ollama-model:
+      ollama:
         image: ollama/ollama:latest
         # volumes:
         #   - ./llama_model:/app/model
@@ -60,7 +66,8 @@ jobs:
         id: review
         run: |
           $Uri = "http://localhost:11434"
-          $model = 'llama3.1'
+          # this is needed for PRs since intput can't be determined
+          if (-not [string]::IsNullOrEmpty("${{ inputs.model }}") {$model = 'codellama'} 
           $deltas = Get-Content delta.txt
           $prompt = "Review this pull request:`n$deltas"
           $ErrorActionPreference = 'continue'
