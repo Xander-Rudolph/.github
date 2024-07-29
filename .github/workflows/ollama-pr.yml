@@ -68,7 +68,7 @@ jobs:
         run: |
           $Uri = "http://localhost:11434"
           # this is needed for PRs since intput can't be determined
-          if (-not [string]::IsNullOrEmpty("${{ inputs.model }}") {$model = 'codellama'} 
+          if (-not [string]::IsNullOrEmpty("${{ inputs.model }}")) {$model = 'codellama'} 
           $deltas = Get-Content delta.txt
           $prompt = "Review this pull request:`n$deltas"
           $ErrorActionPreference = 'continue'
