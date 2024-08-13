@@ -1,0 +1,48 @@
+name: Trivy Scan
+
+on:
+  workflow_call:
+    inputs:
+      scanPath:
+        description: 'path to scan'
+        required: false
+        type: string
+        default: .
+        
+jobs:
+  scan:
+    name: Trivy scan
+    runs-on: ubuntu-20.04
+    steps:
+
+    - name: Run Trivy config mode
+      uses: aquasecurity/trivy-action@0.20.0
+      with:
+        scan-type: 'config'
+        scan-ref: ${{ inputs.scanPath }}
+        format: 'sarif'
+        output: 'config-trivy-results.sarif'
+        ignore-unfixed: true
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy config
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'config-trivy-results.sarif'
+        category: config-results
+
+    - name: Run Trivy fs mode
+      uses: aquasecurity/trivy-action@0.20.0
+      with:
+        scan-type: 'fs'
+        scan-ref: ${{ inputs.scanPath }}
+        format: 'sarif'
+        output: 'fs-trivy-results.sarif'
+        ignore-unfixed: true
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy fs
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'fs-trivy-results.sarif'
+        category: fs-results
