@@ -12,7 +12,7 @@ on:
 jobs:
   scan:
     name: Trivy scan
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
 
     - name: Run Trivy config mode
