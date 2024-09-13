@@ -61,7 +61,7 @@ jobs:
           # using output vars isn't working... write files instead
           $content | convertto-json | Out-File delta.txt
 
-      - name: Send PR to ollama
+      - name: Send PR to ollama - ${{ inputs.model || 'llama3.1' }}
         shell: pwsh
         id: review
         run: |
