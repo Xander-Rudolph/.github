@@ -70,7 +70,7 @@ jobs:
       - name: Semantic Version
         if: ${{ inputs.gitversion != true }}
         id: sem-ver
-        uses: paulhatch/semantic-version@v5.0.2
+        uses: paulhatch/semantic-version@v5.4.0
         with:
           change_path: ${{ inputs.working_dir }}
           search_commit_body: true
