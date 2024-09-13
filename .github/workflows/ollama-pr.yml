@@ -9,7 +9,9 @@ on:
         description: 'Override model name'
         required: false
         type: string
-        default: llama3.1 # quick PR
+        default: llama3.1:70b # quick PR
+        # default: llama3.1 # quick PR
+        # default: codellama # download of this model takes a while
         # default: deepseek-coder-v2 # download of this model takes a while
         
 jobs:
@@ -68,7 +70,7 @@ jobs:
         run: |
           $Uri = "http://localhost:11434"
           # this is needed for PRs since intput can't be determined
-          if (-not [string]::IsNullOrEmpty("${{ inputs.model }}")) {$model = 'deepseek-coder-v2'} 
+          if (-not [string]::IsNullOrEmpty("${{ inputs.model }}")) {$model = 'llama3.1'} 
           $deltas = Get-Content delta.txt
           $prompt = "Review this pull request and provide suggestions for code to fix or alternative methods:`n$deltas"
           $ErrorActionPreference = 'continue'
