@@ -26,13 +26,9 @@ on:
         required: false
 
 env:
-  github-user: ${{ github.actor }}
-  github-repo: ${{ github.repository_owner }}.github.io
+  github-user: ${{ inputs.github-user || github.actor }}
+  github-repo: ${{ inputs.github-user || github.repository_owner }}.github.io
   GITHUB_OVERRIDE_TOKEN: ${{ secrets.OVERRIDE_TOKEN }}
-  #TODO: ChatGPT says you can do this... I think it lies
-  # github-user: ${{ inputs.github-user != '' ? inputs.github-user : github.actor }}
-  # github-repo: ${{ inputs.github-user != '' ? inputs.github-user : github.actor }}
-  # GITHUB_OVERRIDE_TOKEN: ${{ secrets.OVERRIDE_TOKEN != '' ? secrets.OVERRIDE_TOKEN : secrets.GH_TOKEN }}
 
 jobs:
   repo:
@@ -49,15 +45,10 @@ jobs:
         uses: moutansos/create-repository-action@main
         with:
           name: ${{ env.github-repo }}
-          org: ${{ env.github-user }}
+          org: ${{ inputs.github-user || github.repository_owner }}
           access-token: ${{ env.GITHUB_OVERRIDE_TOKEN }}
           private-repo: false
           initialize-repo: true
-
-      #TODO: Set Repo permissions
-      # - name: Set Repo Permissions
-      #   uses: 
-      #   with:
 
   ghost:
     concurrency: ci-${{ github.ref }}
