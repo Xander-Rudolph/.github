@@ -1,0 +1,47 @@
+name: Create Repository from Template
+
+on:
+  workflow_call:
+    inputs:
+      working_dir:
+        required: true
+        description: "Path of terraform module to publish."
+        type: string
+      template:
+        required: true
+        description: "Template to use (based on current repo owner)."
+        default: ""
+        type: string
+      visibility:
+        required: false
+        description: "Visibility type. --private, --internal, --public"
+        default: "--private"
+        type: string
+    secrets:
+      OVERRIDE_TOKEN:
+        required: false
+
+env: 
+  REPO_NAME: "terraform-${{ inputs.working_dir }}"
+  REPO_OWNER: ${{ github.repository_owner }}
+
+jobs:
+  create_repo:
+    runs-on: ubuntu-latest
+    steps:
+      # This checkout is for credentials
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} #TODO: Add toggle for override token
+          sparse-checkout: .github
+
+      - name: Create Repo from Template
+        run: |
+          if ! gh repo view $REPO_OWNER/$REPO_NAME &> /dev/null; then
+            echo "CREATING THE REPO $REPO_NAME:"
+            gh repo create $REPO_OWNER/$REPO_NAME ${{ inputs.visibility }} --template ${{ github.repository_owner }}/${{ inputs.template }}
+            echo "PROCESS COMPLETE!"
+          else
+            echo "REPO ALREADY EXISTS!"
+          fi
+
