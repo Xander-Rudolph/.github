@@ -9,10 +9,7 @@ on:
         description: 'Override model name'
         required: false
         type: string
-        default: llama3.1:70b # quick PR
-        # default: llama3.1 # quick PR
-        # default: codellama # download of this model takes a while
-        # default: deepseek-coder-v2 # download of this model takes a while
+        default: llama3.1 # https://github.com/ollama/ollama?tab=readme-ov-file#model-library
         
 jobs:
   review-pr:
