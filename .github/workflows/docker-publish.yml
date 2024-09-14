@@ -33,9 +33,9 @@ on:
         
       gitversion:
         required: false
-        description: "Toggle to true to use gitversion"
-        type: boolean
-        default: false
+        description: "Set gitversion.yml path to enable"
+        type: string
+        default: ""
     secrets:
       GH_USERNAME:
         required: false
@@ -57,15 +57,17 @@ jobs:
           fetch-depth: 0
           
       - name: Install GitVersion
-        if: ${{ inputs.gitversion }}
+        if: ${{ inputs.gitversion != '' }}
         uses: gittools/actions/gitversion/setup@v3.0.0
         with:
           versionSpec: '5.x'
 
       - name: Use GitVersion
-        if: ${{ inputs.gitversion }}
+        if: ${{ inputs.gitversion != '' }}
         id: gitversion
         uses: gittools/actions/gitversion/execute@v3.0.0
+        with:
+          configFilePath: ${{ inputs.gitversion }}
 
       - name: Semantic Version
         if: ${{ inputs.gitversion != true }}
@@ -110,4 +112,5 @@ jobs:
           context:  ${{ inputs.working_dir }}
           push: ${{ inputs.trigger_release }}
           labels: ${{ steps.meta.outputs.labels }}
+          file: ${{ inputs.dockerfile }}
           provenance: true
