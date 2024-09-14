@@ -33,9 +33,16 @@ on:
         
       gitversion:
         required: false
-        description: "Set gitversion.yml path to enable"
+        description: "Set gitversion.yml path to enable. Path is relative to working_dir input"
         type: string
         default: ""
+        
+      dockerfile:
+        required: false
+        description: "Name of the docker file. Path is relative to working_dir input"
+        type: string
+        default: "Dockerfile"
+        
     secrets:
       GH_USERNAME:
         required: false
@@ -67,7 +74,7 @@ jobs:
         id: gitversion
         uses: gittools/actions/gitversion/execute@v3.0.0
         with:
-          configFilePath: ${{ inputs.gitversion }}
+          configFilePath: ${{ inputs.working_dir }}/${{ inputs.gitversion }}
 
       - name: Semantic Version
         if: ${{ inputs.gitversion != true }}
