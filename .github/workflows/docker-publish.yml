@@ -87,7 +87,7 @@ jobs:
           version_format: "${major}.${minor}.${patch}-${increment}"
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
