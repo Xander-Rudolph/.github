@@ -90,8 +90,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: "FAILFAST"
-          # password: ${{ secrets.GH_PACKAGETOKEN || secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GH_PACKAGETOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Docker meta
         id: meta
