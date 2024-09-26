@@ -44,7 +44,7 @@ on:
         default: "Dockerfile"
         
     secrets:
-      GH_USERNAME:
+      GH_PACKAGETOKEN:
         required: false
 
 
@@ -90,7 +90,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GH_PACKAGETOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Docker meta
         id: meta
@@ -119,6 +119,4 @@ jobs:
           push: ${{ inputs.trigger_release }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ${{ inputs.working_dir }}/${{ inputs.dockerfile }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           provenance: true
