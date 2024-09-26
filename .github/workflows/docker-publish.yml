@@ -46,8 +46,7 @@ on:
     secrets:
       GH_USERNAME:
         required: false
-      GH_PACKAGETOKEN:
-        required: false
+
 
 jobs:
   build:
@@ -121,5 +120,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           file: ${{ inputs.working_dir }}/${{ inputs.dockerfile }}
           secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GH_PACKAGETOKEN || secrets.GITHUB_TOKEN }}
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           provenance: true
