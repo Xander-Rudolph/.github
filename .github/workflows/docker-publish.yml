@@ -119,5 +119,5 @@ jobs:
           context:  ${{ inputs.working_dir }}
           push: ${{ inputs.trigger_release }}
           labels: ${{ steps.meta.outputs.labels }}
-          file: ${{ inputs.dockerfile }}
+          file: ${{ inputs.working_dir }}/${{ inputs.dockerfile }}
           provenance: true
