@@ -1,7 +1,7 @@
 name: Build docker package
 
 permissions:
-  packages: write
+  # packages: write
   contents: write
   
 on:
@@ -45,7 +45,7 @@ on:
         
     secrets:
       GH_PACKAGETOKEN:
-        required: false
+        required: true
 
 
 jobs:
@@ -90,7 +90,8 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GH_PACKAGETOKEN || secrets.GITHUB_TOKEN }}
+          # password: ${{ secrets.GH_PACKAGETOKEN || secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GH_PACKAGETOKEN }}
 
       - name: Docker meta
         id: meta
@@ -119,5 +120,6 @@ jobs:
           push: ${{ inputs.trigger_release }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ${{ inputs.working_dir }}/${{ inputs.dockerfile }}
-          github-token: ${{ secrets.GH_PACKAGETOKEN || secrets.GITHUB_TOKEN }}
+          # github-token: ${{ secrets.GH_PACKAGETOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_PACKAGETOKEN }}
           provenance: true
