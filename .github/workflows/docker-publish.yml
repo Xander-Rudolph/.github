@@ -119,4 +119,5 @@ jobs:
           push: ${{ inputs.trigger_release }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ${{ inputs.working_dir }}/${{ inputs.dockerfile }}
+          github-token: ${{ secrets.GH_PACKAGETOKEN || secrets.GITHUB_TOKEN }}
           provenance: true
