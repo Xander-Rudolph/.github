@@ -120,4 +120,6 @@ jobs:
           push: ${{ inputs.trigger_release }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ${{ inputs.working_dir }}/${{ inputs.dockerfile }}
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           provenance: true
