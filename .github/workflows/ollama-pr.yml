@@ -10,6 +10,16 @@ on:
         required: false
         type: string
         default: llama3.1 # https://github.com/ollama/ollama?tab=readme-ov-file#model-library
+      prompt:
+        description: 'Prompt to prefix the PR content'
+        required: false
+        type: string
+        default: "Review this pull request and provide suggestions for code to fix or alternative methods"
+      review-timeout:
+        description: 'Length of time (in minutes) to attempt the PR'
+        required: false
+        type: number
+        default: 30
         
 jobs:
   review-pr:
@@ -63,13 +73,14 @@ jobs:
 
       - name: Send PR to ollama - ${{ inputs.model || 'llama3.1' }}
         shell: pwsh
+        timeout-minutes: ${{ inputs.review-timeout }}
         id: review
         run: |
           $Uri = "http://localhost:11434"
           # this is needed for PRs since intput can't be determined
           if (-not [string]::IsNullOrEmpty("${{ inputs.model }}")) {$model = 'llama3.1'} 
           $deltas = Get-Content delta.txt
-          $prompt = "Review this pull request and provide suggestions for code to fix or alternative methods:`n$deltas"
+          $prompt = "${{ inputs.prompt }}:`n$deltas"
           $ErrorActionPreference = 'continue'
           $VerbosePreference = 'continue'
 
