@@ -13,8 +13,8 @@ on:
         required: false
         type: string        
       content-path:
-        description: "ghost docker image used to generate content"
-        default: "${{ github.workspace }}/content"
+        description: "Path of the content folder (will add prefix github.workspace automatically)"
+        default: "content"
         required: false
         type: string        
     secrets:
@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Run Ghost 👻
-        run: docker run -d -p 2368:2368 -e NODE_ENV=development -e database__connection__filename='/var/lib/ghost/content/data/ghost.db' -v ${{ inputs.content-path }}:/var/lib/ghost/content ${{ inputs.dockerimage }}
+        run: docker run -d -p 2368:2368 -e NODE_ENV=development -e database__connection__filename='/var/lib/ghost/content/data/ghost.db' -v "${{ github.workspace }}/${{ inputs.content-path }}":/var/lib/ghost/content ${{ inputs.dockerimage }}
       
       - name: Sleep for 10 seconds 💤
         uses: jakejarvis/wait-action@master
