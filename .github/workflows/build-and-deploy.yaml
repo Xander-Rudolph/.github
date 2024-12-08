@@ -7,22 +7,18 @@ on:
         description: "github user name"
         required: true # once I nail down repo create this can use the actor and be set to false
         type: string
-      overrideURL:
-        description: "URL override for github page"
-        default: ''
-        required: false
-        type: string
       dockerimage:
         description: "ghost docker image used to generate content"
         default: 'ghost:alpine'
         required: false
         type: string        
+      content-path:
+        description: "ghost docker image used to generate content"
+        default: "${{ github.workspace }}/content"
+        required: false
+        type: string        
     secrets:
       OVERRIDE_TOKEN:
-        required: false
-      GHOST_ADMIN_API_URL:
-        required: false
-      GHOST_ADMIN_API_KEY:
         required: false
 
 env:
@@ -35,12 +31,6 @@ jobs:
     concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
-      #TODO: check to see if it exists first
-      # - name: Check For Repo
-      #   uses: actions/checkout@v3
-      #   with:
-      #     repository: ${{ env.github-repo }}
-
       - name: Create Repo 🔨
         uses: moutansos/create-repository-action@main
         with:
@@ -56,10 +46,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Run Ghost 👻
-        run: docker run -d -p 2368:2368 -e NODE_ENV=development -e database__connection__filename='/var/lib/ghost/content/data/ghost.db' -v ${{ github.workspace }}/content:/var/lib/ghost/content ${{ inputs.dockerimage }}
+        run: docker run -d -p 2368:2368 -e NODE_ENV=development -e database__connection__filename='/var/lib/ghost/content/data/ghost.db' -v ${{ inputs.content-path }}:/var/lib/ghost/content ${{ inputs.dockerimage }}
       
       - name: Sleep for 10 seconds 💤
         uses: jakejarvis/wait-action@master
@@ -70,12 +60,7 @@ jobs:
         run: npm install -g ghost-static-site-generator
 
       - name: Generate Static Site 🛠️
-        if: ${{ inputs.overrideURL == '' }}
         run: gssg --url https://${{ env.github-repo }}
-
-      - name: Generate Static Site - Using custom domain 🛠️
-        if: ${{ inputs.overrideURL != '' }}
-        run: gssg --url https://${{ inputs.overrideURL }}
 
       - name: Deploy to Github Pages 🚀
         if: ${{ env.GITHUB_OVERRIDE_TOKEN != '' }}
@@ -85,16 +70,3 @@ jobs:
           folder: static
           token: ${{ env.GITHUB_OVERRIDE_TOKEN }}
           repository-name: ${{ env.github-user }}/${{ env.github-repo }}
-          
-#   theme:
-#     runs-on: ubuntu-22.04
-#     if: ${{ secrets.GHOST_ADMIN_API_KEY != '' }}
-#     needs: ghost
-#     steps:
-#       - uses: actions/checkout@v3
-      
-#       - name: Deploy Ghost Theme
-#         uses: TryGhost/action-deploy-theme@v1
-#         with:
-#           api-url: ${{ secrets.GHOST_ADMIN_API_URL }}
-#           api-key: ${{ secrets.GHOST_ADMIN_API_KEY }}
