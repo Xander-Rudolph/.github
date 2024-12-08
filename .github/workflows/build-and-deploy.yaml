@@ -14,7 +14,7 @@ on:
         type: string        
       content-path:
         description: "Path of the content folder (will add prefix github.workspace automatically)"
-        default: "content"
+        default: ""
         required: false
         type: string        
     secrets:
@@ -49,18 +49,23 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Run Ghost 👻
-        run: docker run -d -p 2368:2368 -e NODE_ENV=development -e database__connection__filename='/var/lib/ghost/content/data/ghost.db' -v "${{ github.workspace }}/${{ inputs.content-path }}":/var/lib/ghost/content ${{ inputs.dockerimage }}
-      
-      - name: Sleep for 10 seconds 💤
-        uses: jakejarvis/wait-action@master
-        with:
-          time: "10s"
-          
+        run: |
+          docker run -d -p 2368:2368 -e NODE_ENV=development -e database__connection__filename='/var/lib/ghost/content/data/ghost.db' -v "${{ github.workspace }}/${{ inputs.content-path }}/content":/var/lib/ghost/content ${{ inputs.dockerimage }}
+          sleep 10
+         
       - name: Install ghost-static-site-generator ✨
         run: npm install -g ghost-static-site-generator
-
+  
       - name: Generate Static Site 🛠️
-        run: gssg --url https://${{ env.github-repo }}
+        run: |
+          if [ -f "${{ github.workspace }}/${{ inputs.content-path }}/CNAME" ]; then
+            cname_url=$(cat ${{ github.workspace }}/${{ inputs.content-path }}/CNAME)
+            echo "CNAME file found. Using URL: $cname_url"
+            gssg --url "https://$cname_url"
+          else
+            echo "CNAME file not found. Using default URL."
+            gssg --url "https://${{ env.github-repo }}"
+          fi
 
       - name: Deploy to Github Pages 🚀
         if: ${{ env.GITHUB_OVERRIDE_TOKEN != '' }}
