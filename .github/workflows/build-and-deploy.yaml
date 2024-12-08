@@ -37,7 +37,7 @@ jobs:
     steps:
       #TODO: check to see if it exists first
       # - name: Check For Repo
-      #   uses: actions/checkout@v3
+      #   uses: actions/checkout@v4
       #   with:
       #     repository: ${{ env.github-repo }}
 
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Run Ghost 👻
         run: docker run -d -p 2368:2368 -e NODE_ENV=development -e database__connection__filename='/var/lib/ghost/content/data/ghost.db' -v ${{ github.workspace }}/content:/var/lib/ghost/content ${{ inputs.dockerimage }}
@@ -91,7 +91,7 @@ jobs:
 #     if: ${{ secrets.GHOST_ADMIN_API_KEY != '' }}
 #     needs: ghost
 #     steps:
-#       - uses: actions/checkout@v3
+#       - uses: actions/checkout@v4
       
 #       - name: Deploy Ghost Theme
 #         uses: TryGhost/action-deploy-theme@v1
