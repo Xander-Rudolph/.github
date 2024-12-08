@@ -5,7 +5,11 @@ on:
     inputs:
       github-user:
         description: "github user name"
-        required: true # once I nail down repo create this can use the actor and be set to false
+        required: false # once I nail down repo create this can use the actor and be set to false
+        type: string
+      github-repo:
+        description: "Name of github repo"
+        required: false # once I nail down repo create this can use the actor and be set to false
         type: string
       dockerimage:
         description: "ghost docker image used to generate content"
@@ -23,7 +27,8 @@ on:
 
 env:
   github-user: ${{ inputs.github-user || github.actor }}
-  github-repo: ${{ inputs.github-user || github.repository_owner }}.github.io
+  github-repo: ${{ inputs.github-repo || (inputs.github-user || github.repository_owner) + '.github.io' }}
+  # github-repo: ${{ inputs.github-user || github.repository_owner }}.github.io
   GITHUB_OVERRIDE_TOKEN: ${{ secrets.OVERRIDE_TOKEN }}
 
 jobs:
