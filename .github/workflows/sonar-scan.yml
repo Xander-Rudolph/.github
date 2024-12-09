@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Set up JDK # SonarQube scanner requires Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'adopt'
@@ -45,7 +45,7 @@ jobs:
           SONAR_TOKEN: ${{ steps.sonar-config.outputs.SONAR_TOKEN }}
           COVERAGE_ENABLED: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for PR decoration
-        uses: SonarSource/sonarqube-scan-action@v3.0.0
+        uses: SonarSource/sonarqube-scan-action@v4.1.0
         with:
           args: >
             -Dsonar.projectKey=${{ github.repository }}
