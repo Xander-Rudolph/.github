@@ -64,14 +64,14 @@ jobs:
           
       - name: Install GitVersion
         if: ${{ inputs.gitversion != '' }}
-        uses: gittools/actions/gitversion/setup@v3.0.3
+        uses: gittools/actions/gitversion/setup@v3.1.1
         with:
           versionSpec: '5.x'
 
       - name: Use GitVersion
         if: ${{ inputs.gitversion != '' }}
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.0.3
+        uses: gittools/actions/gitversion/execute@v3.1.1
         with:
           configFilePath: ${{ inputs.working_dir }}/${{ inputs.gitversion }}
 
