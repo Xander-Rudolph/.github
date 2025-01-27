@@ -3,7 +3,7 @@ name: Build docker package
 permissions:
   packages: write
   contents: write
-  
+
 on:
   workflow_call:
     outputs:
@@ -18,25 +18,21 @@ on:
         required: true
         description: "Name of docker registry to publish. Does not need ghcr.io/[orgname]/ in front."
         type: string
-      
       working_dir:
         required: false
-        description: "Operating path for path dependent steps"
+        description: "Operating path for path-dependent steps"
         type: string
         default: .
-     
       trigger_release:
         required: false
         description: "Toggle to true for docker push all tags"
         type: boolean
         default: false
-        
       gitversion:
         required: false
         description: "Set gitversion.yml path to enable. Path is relative to working_dir input"
         type: string
         default: ""
-        
       dockerfile:
         required: false
         description: "Name of the docker file. Path is relative to working_dir input"
@@ -50,13 +46,13 @@ jobs:
       tags: ${{ steps.meta.outputs.tags }}
     name: Run docker Build
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
       - name: Install GitVersion
         if: ${{ inputs.gitversion != '' }}
         uses: gittools/actions/gitversion/setup@v3.0.3
@@ -80,7 +76,7 @@ jobs:
           bump_each_commit: true
           version_format: "${major}.${minor}.${patch}-${increment}"
 
-      - name: Login to Docker Hub
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -105,12 +101,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push
+      - name: Build and Push
         id: push
         uses: docker/build-push-action@v6.10.0
         with:
           tags: ${{ steps.meta.outputs.tags }}
-          context:  ${{ inputs.working_dir }}
+          context: ${{ inputs.working_dir }}
           push: ${{ inputs.trigger_release }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ${{ inputs.working_dir }}/${{ inputs.dockerfile }}
