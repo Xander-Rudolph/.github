@@ -5,29 +5,30 @@ on:
     inputs:
       github-user:
         description: "github user name"
-        required: true # once I nail down repo create this can use the actor and be set to false
+        required: false # once I nail down repo create this can use the actor and be set to false
         type: string
-      overrideURL:
-        description: "URL override for github page"
-        default: ''
-        required: false
+      github-repo:
+        description: "Name of github repo"
+        required: false # once I nail down repo create this can use the actor and be set to false
         type: string
       dockerimage:
         description: "ghost docker image used to generate content"
         default: 'ghost:alpine'
         required: false
         type: string        
+      content-path:
+        description: "Path of the content folder (will add prefix github.workspace automatically)"
+        default: ""
+        required: false
+        type: string        
     secrets:
       OVERRIDE_TOKEN:
-        required: false
-      GHOST_ADMIN_API_URL:
-        required: false
-      GHOST_ADMIN_API_KEY:
         required: false
 
 env:
   github-user: ${{ inputs.github-user || github.actor }}
-  github-repo: ${{ inputs.github-user || github.repository_owner }}.github.io
+  github-repo: ${{ inputs.github-repo || format('{0}.github.io', inputs.github-user || github.repository_owner) }}
+  # github-repo: ${{ inputs.github-user || github.repository_owner }}.github.io
   GITHUB_OVERRIDE_TOKEN: ${{ secrets.OVERRIDE_TOKEN }}
 
 jobs:
@@ -35,12 +36,6 @@ jobs:
     concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
-      #TODO: check to see if it exists first
-      # - name: Check For Repo
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: ${{ env.github-repo }}
-
       - name: Create Repo 🔨
         uses: moutansos/create-repository-action@main
         with:
@@ -59,23 +54,23 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Run Ghost 👻
-        run: docker run -d -p 2368:2368 -e NODE_ENV=development -e database__connection__filename='/var/lib/ghost/content/data/ghost.db' -v ${{ github.workspace }}/content:/var/lib/ghost/content ${{ inputs.dockerimage }}
-      
-      - name: Sleep for 10 seconds 💤
-        uses: jakejarvis/wait-action@master
-        with:
-          time: "10s"
-          
+        run: |
+          docker run -d -p 2368:2368 -e NODE_ENV=development -e database__connection__filename='/var/lib/ghost/content/data/ghost.db' -v "${{ github.workspace }}/${{ inputs.content-path }}/content":/var/lib/ghost/content ${{ inputs.dockerimage }}
+          sleep 10
+         
       - name: Install ghost-static-site-generator ✨
         run: npm install -g ghost-static-site-generator
-
+  
       - name: Generate Static Site 🛠️
-        if: ${{ inputs.overrideURL == '' }}
-        run: gssg --url https://${{ env.github-repo }}
-
-      - name: Generate Static Site - Using custom domain 🛠️
-        if: ${{ inputs.overrideURL != '' }}
-        run: gssg --url https://${{ inputs.overrideURL }}
+        run: |
+          if [ -f "${{ github.workspace }}/${{ inputs.content-path }}/CNAME" ]; then
+            cname_url=$(cat ${{ github.workspace }}/${{ inputs.content-path }}/CNAME)
+            echo "CNAME file found. Using URL: $cname_url"
+            gssg --url "https://$cname_url"
+          else
+            echo "CNAME file not found. Using default URL."
+            gssg --url "https://${{ env.github-repo }}"
+          fi
 
       - name: Deploy to Github Pages 🚀
         if: ${{ env.GITHUB_OVERRIDE_TOKEN != '' }}
@@ -85,16 +80,3 @@ jobs:
           folder: static
           token: ${{ env.GITHUB_OVERRIDE_TOKEN }}
           repository-name: ${{ env.github-user }}/${{ env.github-repo }}
-          
-#   theme:
-#     runs-on: ubuntu-22.04
-#     if: ${{ secrets.GHOST_ADMIN_API_KEY != '' }}
-#     needs: ghost
-#     steps:
-#       - uses: actions/checkout@v4
-      
-#       - name: Deploy Ghost Theme
-#         uses: TryGhost/action-deploy-theme@v1
-#         with:
-#           api-url: ${{ secrets.GHOST_ADMIN_API_URL }}
-#           api-key: ${{ secrets.GHOST_ADMIN_API_KEY }}
