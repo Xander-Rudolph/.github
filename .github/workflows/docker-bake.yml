@@ -80,11 +80,14 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
+    
+      - name: Set BUILD_VERSION
+        run: echo "BUILD_VERSION=${{ steps.sem-ver.outputs.version || steps.gitversion.outputs.informationalVersion }}" >> $GITHUB_ENV
+      
       - name: Bake
-        env:
-          BUILD_VERSION: ${{ steps.sem-ver.outputs.version || steps.gitversion.outputs.informationalVersion }}
         uses: docker/bake-action@v6
+        env:
+          BUILD_VERSION: ${{ env.BUILD_VERSION }}
         with:
           targets: ${{ inputs.targets }}
           push: ${{ inputs.trigger_release }}
