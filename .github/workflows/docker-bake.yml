@@ -106,4 +106,7 @@ jobs:
         uses: docker/bake-action@v6
         with:
           targets: ${{ inputs.targets }}
+          push: true
+          # set: |
+          #   *.tags=user/app:latest
           
