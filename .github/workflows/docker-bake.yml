@@ -37,7 +37,7 @@ on:
         required: false
         description: "Name in docker bake file to run"
         type: string
-        default: ""
+        default: "default"
 
 
 jobs:
