@@ -14,15 +14,6 @@ on:
         description: "All image tags"
         value: ${{ jobs.build.outputs.tags }}
     inputs:
-      image_name:
-        required: true
-        description: "Name of docker registry to publish. Does not need ghcr.io/[orgname]/ in front."
-        type: string
-      working_dir:
-        required: false
-        description: "Operating path for path-dependent steps"
-        type: string
-        default: .
       trigger_release:
         required: false
         description: "Toggle to true for docker push all tags"
@@ -30,7 +21,7 @@ on:
         default: false
       gitversion:
         required: false
-        description: "Set gitversion.yml path to enable. Path is relative to working_dir input"
+        description: "Set gitversion.yml path to enable."
         type: string
         default: ""
       targets:
@@ -65,14 +56,14 @@ jobs:
         id: gitversion
         uses: gittools/actions/gitversion/execute@v3.1.11
         with:
-          configFilePath: ${{ inputs.working_dir }}/${{ inputs.gitversion }}
+          configFilePath: ${{ inputs.gitversion }}
 
       - name: Semantic Version
         if: ${{ inputs.gitversion == '' }}
         id: sem-ver
         uses: paulhatch/semantic-version@v5.4.0
         with:
-          change_path: ${{ inputs.working_dir }}
+          change_path: .
           search_commit_body: true
           bump_each_commit: true
           version_format: "${major}.${minor}.${patch}-${increment}"
@@ -96,4 +87,4 @@ jobs:
         uses: docker/bake-action@v6
         with:
           targets: ${{ inputs.targets }}
-          push: true
+          push: ${{ inputs.trigger_release }}
