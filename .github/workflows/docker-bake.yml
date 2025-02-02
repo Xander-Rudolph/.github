@@ -105,5 +105,5 @@ jobs:
       - name: Bake
         uses: docker/bake-action@v6
         with:
-          targets: {{ inputs.targets }}
+          targets: ${{ inputs.targets }}
           
