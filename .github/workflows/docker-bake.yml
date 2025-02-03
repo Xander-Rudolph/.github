@@ -88,4 +88,3 @@ jobs:
         with:
           targets: ${{ inputs.targets }}
           push: ${{ inputs.trigger_release }}
-          set: version=$BUILD_VERSION
