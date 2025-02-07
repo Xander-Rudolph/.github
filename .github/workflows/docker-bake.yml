@@ -14,15 +14,6 @@ on:
         description: "All image tags"
         value: ${{ jobs.build.outputs.tags }}
     inputs:
-      image_name:
-        required: true
-        description: "Name of docker registry to publish. Does not need ghcr.io/[orgname]/ in front."
-        type: string
-      working_dir:
-        required: false
-        description: "Operating path for path-dependent steps"
-        type: string
-        default: .
       trigger_release:
         required: false
         description: "Toggle to true for docker push all tags"
@@ -30,19 +21,14 @@ on:
         default: false
       gitversion:
         required: false
-        description: "Set gitversion.yml path to enable. Path is relative to working_dir input"
+        description: "Set gitversion.yml path to enable."
         type: string
         default: ""
-      dockerfile:
+      targets:
         required: false
-        description: "Name of the docker file. Path is relative to working_dir input"
+        description: "Name in docker bake file to run"
         type: string
-        default: "Dockerfile"
-      build_args:
-        required: false
-        description: "List of build-time arguments for Docker"
-        type: string
-        default: ""
+        default: "default"
 
 
 jobs:
@@ -70,14 +56,14 @@ jobs:
         id: gitversion
         uses: gittools/actions/gitversion/execute@v3.1.11
         with:
-          configFilePath: ${{ inputs.working_dir }}/${{ inputs.gitversion }}
+          configFilePath: ${{ inputs.gitversion }}
 
       - name: Semantic Version
         if: ${{ inputs.gitversion == '' }}
         id: sem-ver
         uses: paulhatch/semantic-version@v5.4.0
         with:
-          change_path: ${{ inputs.working_dir }}
+          change_path: .
           search_commit_body: true
           bump_each_commit: true
           version_format: "${major}.${minor}.${patch}-${increment}"
@@ -89,33 +75,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}
-          tags: |
-            type=sha
-            type=raw,latest
-            type=ref,event=branch
-            type=schedule,pattern={{date 'YYYYMMDD'}}
-            type=semver,pattern={{version}},value=${{ steps.sem-ver.outputs.version || steps.gitversion.outputs.informationalVersion }}
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Build and Push
-        id: push
-        uses: docker/build-push-action@v6.13.0
+          
+      - name: Bake
+        uses: docker/bake-action@v6
+        env:
+          BUILD_VERSION: ${{ steps.sem-ver.outputs.version || steps.gitversion.outputs.GitVersion_MajorMinorPatch }}
         with:
-          tags: ${{ steps.meta.outputs.tags }}
-          context: ${{ inputs.working_dir }}
+          targets: ${{ inputs.targets }}
           push: ${{ inputs.trigger_release }}
-          labels: ${{ steps.meta.outputs.labels }}
-          file: ${{ inputs.working_dir }}/${{ inputs.dockerfile }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          build-args: ${{ inputs.build_args }}
-          # provenance: true # can throw permission errors unless you use an override token
