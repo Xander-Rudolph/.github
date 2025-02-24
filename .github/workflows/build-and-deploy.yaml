@@ -74,7 +74,7 @@ jobs:
 
       - name: Deploy to Github Pages 🚀
         if: ${{ env.GITHUB_OVERRIDE_TOKEN != '' }}
-        uses: JamesIves/github-pages-deploy-action@v4.7.2
+        uses: JamesIves/github-pages-deploy-action@v4.7.3
         with:
           branch: main #gh-pages
           folder: static
