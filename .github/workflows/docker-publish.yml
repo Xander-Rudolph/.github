@@ -109,7 +109,7 @@ jobs:
 
       - name: Build and Push
         id: push
-        uses: docker/build-push-action@v6.13.0
+        uses: docker/build-push-action@v6.14.0
         with:
           tags: ${{ steps.meta.outputs.tags }}
           context: ${{ inputs.working_dir }}
