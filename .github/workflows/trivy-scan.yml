@@ -16,7 +16,7 @@ jobs:
     steps:
 
     - name: Run Trivy config mode
-      uses: aquasecurity/trivy-action@0.29.0
+      uses: aquasecurity/trivy-action@0.30.0
       with:
         scan-type: 'config'
         scan-ref: ${{ inputs.scanPath }}
@@ -32,7 +32,7 @@ jobs:
         category: config-results
 
     - name: Run Trivy fs mode
-      uses: aquasecurity/trivy-action@0.29.0
+      uses: aquasecurity/trivy-action@0.30.0
       with:
         scan-type: 'fs'
         scan-ref: ${{ inputs.scanPath }}
