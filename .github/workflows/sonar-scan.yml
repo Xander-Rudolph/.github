@@ -45,7 +45,7 @@ jobs:
           SONAR_TOKEN: ${{ steps.sonar-config.outputs.SONAR_TOKEN }}
           COVERAGE_ENABLED: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for PR decoration
-        uses: SonarSource/sonarqube-scan-action@v4.2.1
+        uses: SonarSource/sonarqube-scan-action@v5.2.0
         with:
           args: >
             -Dsonar.projectKey=${{ github.repository }}
