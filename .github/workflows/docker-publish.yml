@@ -43,6 +43,11 @@ on:
         description: "List of build-time arguments for Docker"
         type: string
         default: ""
+      version_override:
+        required: false
+        description: "Tag to apply"
+        type: string
+        default: ""
 
 
 jobs:
@@ -99,8 +104,8 @@ jobs:
             type=raw,latest
             type=ref,event=branch
             type=schedule,pattern={{date 'YYYYMMDD'}}
-            type=semver,pattern={{version}},value=${{ steps.sem-ver.outputs.version || steps.gitversion.outputs.informationalVersion }}
-
+            type=semver,pattern={{version}},value=${{ inputs.version_override || steps.sem-ver.outputs.version || steps.gitversion.outputs.informationalVersion }}
+            
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
