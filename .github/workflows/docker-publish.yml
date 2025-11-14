@@ -48,6 +48,11 @@ on:
         description: "Tag to apply"
         type: string
         default: ""
+      fetch_depth:
+        required: false
+        description: "Tag to apply"
+        type: string
+        default: "0"
 
 
 jobs:
@@ -62,7 +67,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: ${{ inputs.fetch_depth }}
+          ref: ${{ github.ref }}
 
       - name: Install GitVersion
         if: ${{ inputs.gitversion != '' }}
